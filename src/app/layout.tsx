@@ -1,7 +1,7 @@
 import './globals.css'
 import { ThemeProvider } from '../components/ThemeProvider'
 import { Nunito } from 'next/font/google'
-import Providers from '@/components/Providers'
+import Providers from '../components/Providers'
 
 const nunito = Nunito({
   subsets: ['latin'],
