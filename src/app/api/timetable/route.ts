@@ -22,7 +22,7 @@ export async function POST(request: Request) {
     };
 
     // Make request to backend
-    const backendResponse = await fetch("http://localhost:8000/api/timetable", {
+    const backendResponse = await fetch("https://139.59.34.194/api/timetable", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

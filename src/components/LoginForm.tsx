@@ -1,6 +1,7 @@
 'use client';
 import { useState } from 'react';
 import { IconBrandGoogleFilled } from '@tabler/icons-react';
+import { signIn, useSession } from "next-auth/react";
 
 interface TimetableData {
   // Define your timetable structure here
@@ -33,6 +34,8 @@ export default function LoginForm() {
   // These will be implemented in the next phase
   const [isFetchingTimetable, setIsFetchingTimetable] = useState(false);
   const [timetableData, setTimetableData] = useState<any>(null);
+
+  const { data: session } = useSession();
 
   const validateEmail = (email: string): boolean => {
     // Break down the regex pattern:
@@ -67,6 +70,7 @@ export default function LoginForm() {
     setIsLoading(true);
     
     try {
+      // First authenticate with MUERP
       const loginResponse = await fetch('/api/auth/muerp', {
         method: 'POST',
         headers: {
@@ -85,14 +89,14 @@ export default function LoginForm() {
       const loginData = await loginResponse.json();
       console.log("Login Response Data:", loginData);
       
-      // After successful login, fetch timetable
+      // Fetch timetable data
       const timetableResponse = await fetch('/api/timetable', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          cookies: loginData.cookies,  // This should be the JSESSIONID
+          cookies: loginData.cookies,
           username: credentials.username
         }),
       });
@@ -111,6 +115,35 @@ export default function LoginForm() {
       const timetableData = await timetableResponse.json();
       console.log('Timetable Data:', timetableData);
       setTimetableData(timetableData);
+
+      // After successful MUERP login and timetable fetch, initiate Google OAuth
+      const result = await signIn('google', {
+        redirect: false,
+        callbackUrl: '/auth/success'
+      });
+
+      if (result?.error) {
+        throw new Error('Google authentication failed');
+      }
+
+      // If we have both MUERP data and Google auth, create calendar events
+      if (session?.accessToken && timetableData) {
+        // Create calendar events
+        const calendarResponse = await fetch('/api/calendar/sync', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${session.accessToken}`
+          },
+          body: JSON.stringify({
+            timetable: timetableData
+          })
+        });
+
+        if (!calendarResponse.ok) {
+          throw new Error('Failed to sync calendar');
+        }
+      }
 
       setIsLoading(false);
       setIsSuccess(true);

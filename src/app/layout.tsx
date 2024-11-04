@@ -1,6 +1,7 @@
 import './globals.css'
 import { ThemeProvider } from '@/components/ThemeProvider'
 import { Nunito } from 'next/font/google'
+import { SessionProvider } from "next-auth/react"
 
 const nunito = Nunito({
   subsets: ['latin'],
@@ -25,10 +26,12 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`${nunito.variable} antialiased transition-colors duration-300 dark:bg-[#0a0a0a] bg-[#f0f9ff] dark:text-white text-gray-900`}>
+        <SessionProvider>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <div className="gradient-circles" />
           {children}
-        </ThemeProvider>
+          </ThemeProvider>
+        </SessionProvider>
       </body>
     </html>
   )
