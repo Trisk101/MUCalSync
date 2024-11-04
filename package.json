@@ -1,6 +1,6 @@
 {
-  "name": "frontend",
-  "version": "0.0.1",
+  "name": "mu-cal-sync",
+  "version": "0.0.9",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -43,5 +43,13 @@
     "setupFilesAfterEnv": [
       "@testing-library/jest-dom/extend-expect"
     ]
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MarkVI2/MUCalSync.git"
+  },
+  "bugs": {
+    "url": "https://github.com/MarkVI2/MUCalSync/issues"
+  },
+  "homepage": "https://github.com/MarkVI2/MUCalSync#readme"
 }
