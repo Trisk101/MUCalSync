@@ -1,4 +1,4 @@
-import LoginForm from '@/components/LoginForm';
+import LoginForm from '../components/LoginForm';
 import { IconAlertTriangle } from "@tabler/icons-react";
 
 export default function Home() {
