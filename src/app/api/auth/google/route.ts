@@ -2,7 +2,8 @@ import { NextResponse } from "next/server";
 
 export async function GET() {
   const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
-  const REDIRECT_URI = "https://mucalsync.duckdns.org/api/auth/google/callback";
+  const REDIRECT_URI =
+    "https://mucalsync-backend-b6bfaf9878eb.herokuapp.com/api/auth/google/callback";
   //const GOOGLE_REDIRECT_URI = process.env.GOOGLE_REDIRECT_URI_DEV;
 
   if (!GOOGLE_CLIENT_ID) {

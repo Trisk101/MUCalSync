@@ -96,7 +96,6 @@ export default function LoginForm() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          cookies: loginData.cookies,
           username: credentials.username
         }),
       });
@@ -128,7 +127,6 @@ export default function LoginForm() {
 
       // If we have both MUERP data and Google auth, create calendar events
       if (session?.accessToken && timetableData) {
-        // Create calendar events
         const calendarResponse = await fetch('/api/calendar/sync', {
           method: 'POST',
           headers: {

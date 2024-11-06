@@ -1,9 +1,11 @@
 import { NextResponse } from "next/server";
+import { cookies } from "next/headers";
 
 export async function POST(request: Request) {
   try {
     const { username, password } = await request.json();
-    const baseUrl = "https://muerp.mahindrauniversity.edu.in";
+    const cookieStore = cookies();
+    const baseUrl = "https://mucalsync-backend-b6bfaf9878eb.herokuapp.com";
 
     // First get the login page
     const initialResponse = await fetch(baseUrl, {
@@ -16,14 +18,14 @@ export async function POST(request: Request) {
       },
     });
 
-    const cookies = initialResponse.headers.get("set-cookie");
+    const initialCookies = initialResponse.headers.get("set-cookie");
 
     // Attempt login
     const loginResponse = await fetch(`${baseUrl}/j_spring_security_check`, {
       method: "POST",
       headers: {
         "Content-Type": "application/x-www-form-urlencoded",
-        Cookie: cookies || "",
+        Cookie: initialCookies || "",
         Origin: baseUrl,
         Referer: `${baseUrl}/login.htm`,
       },
@@ -37,8 +39,12 @@ export async function POST(request: Request) {
     const location = loginResponse.headers.get("location");
     const sessionCookie = loginResponse.headers.get("set-cookie");
 
-    console.log("Login Response Headers:", loginResponse.headers);
-    console.log("Session Cookie:", sessionCookie);
+    console.log("Complete Login Response:", {
+      status: loginResponse.status,
+      headers: Object.fromEntries(loginResponse.headers.entries()),
+      location,
+      sessionCookie,
+    });
 
     if (location?.includes("error")) {
       return NextResponse.json(
@@ -46,14 +52,40 @@ export async function POST(request: Request) {
         { status: 401 }
       );
     } else if (location && sessionCookie) {
-      // Parse the JSESSIONID from the cookie string
       const jsessionid = sessionCookie.match(/JSESSIONID=([^;]+)/)?.[1];
       console.log("Extracted JSESSIONID:", jsessionid);
 
-      return NextResponse.json({
+      if (!jsessionid) {
+        return NextResponse.json(
+          { error: "No session ID found" },
+          { status: 500 }
+        );
+      }
+
+      // Create response
+      const response = NextResponse.json({
         success: true,
-        cookies: jsessionid, // Send just the JSESSIONID value
+        message: "Successfully logged in",
       });
+
+      // Set both MUERP session and username cookies
+      response.cookies.set("muerp_session", jsessionid, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        maxAge: 60 * 60 * 24,
+        path: "/",
+      });
+
+      response.cookies.set("muerp_username", username, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        maxAge: 60 * 60 * 24,
+        path: "/",
+      });
+
+      return response;
     }
 
     return NextResponse.json({ error: "Unexpected response" }, { status: 500 });

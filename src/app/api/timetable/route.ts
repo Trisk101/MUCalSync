@@ -1,35 +1,60 @@
 import { NextResponse } from "next/server";
+import { cookies } from "next/headers";
+import https from "https";
 
 export async function POST(request: Request) {
   try {
     const body = await request.json();
+    const cookieStore = await cookies();
 
-    // Log the incoming request (sanitize sensitive data)
-    console.log("Timetable request for user:", body.username);
+    // Get both MUERP cookies
+    const muerpSession = cookieStore.get("muerp_session");
+    const muerpUsername = cookieStore.get("muerp_username");
 
-    // Validate required fields
-    if (!body.cookies || !body.username) {
+    console.log("Cookies available:", {
+      session: muerpSession?.value,
+      username: muerpUsername?.value,
+      allCookies: request.headers.get("cookie"),
+    });
+
+    if (!muerpSession?.value || !muerpUsername?.value) {
       return NextResponse.json(
-        { error: "Missing required fields" },
+        { error: "Missing required cookies or session expired" },
         { status: 400 }
       );
     }
 
-    // Create cookie object as expected by backend
     const cookieData = {
-      cookies: body.cookies, // JSESSIONID string
-      username: body.username,
+      cookies: muerpSession.value,
+      username: muerpUsername.value,
     };
 
-    // Make request to backend
-    const backendResponse = await fetch("https://139.59.34.194/api/timetable", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-        "X-Requested-With": "XMLHttpRequest",
-      },
-      body: JSON.stringify(cookieData),
+    console.log("Making backend request with:", cookieData);
+
+    const backendResponse = await fetch(
+      "https://mucalsync-backend-b6bfaf9878eb.herokuapp.com/api/timetable",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+          "X-Requested-With": "XMLHttpRequest",
+          Cookie: `JSESSIONID=${muerpSession.value}`,
+        },
+        body: JSON.stringify(cookieData),
+        // @ts-ignore
+        agent: new https.Agent({
+          rejectUnauthorized: false,
+        }),
+      }
+    );
+
+    // Log complete response
+    const responseData = await backendResponse.json();
+    console.log("Complete Timetable Response:", {
+      status: backendResponse.status,
+      headers: Object.fromEntries(backendResponse.headers.entries()),
+      data: responseData,
     });
 
     // Handle different response statuses
@@ -63,23 +88,18 @@ export async function POST(request: Request) {
       );
     }
 
-    const data = await backendResponse.json();
-
     // Validate timetable data
-    if (!data.timetable || !Array.isArray(data.timetable)) {
-      console.error("Invalid timetable data received:", data);
+    if (!responseData.timetable || !Array.isArray(responseData.timetable)) {
+      console.error("Invalid timetable data received:", responseData);
       return NextResponse.json(
         { error: "Invalid timetable data received" },
         { status: 500 }
       );
     }
 
-    return NextResponse.json(data);
+    return NextResponse.json(responseData);
   } catch (error) {
-    // Log the full error for debugging
     console.error("Timetable fetch error:", error);
-
-    // Return a user-friendly error
     return NextResponse.json(
       {
         error: "Failed to fetch timetable",
