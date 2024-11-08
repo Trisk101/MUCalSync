@@ -100,10 +100,6 @@ export default function LoginForm() {
         }),
       });
 
-      console.log("Timetable Request Payload:", {
-        cookies: loginData.cookies,
-        username: credentials.username
-      });
 
       if (!timetableResponse.ok) {
         const errorData = await timetableResponse.json();
@@ -112,7 +108,6 @@ export default function LoginForm() {
       }
 
       const timetableData = await timetableResponse.json();
-      console.log('Timetable Data:', timetableData);
       setTimetableData(timetableData);
 
       // After successful MUERP login and timetable fetch, initiate Google OAuth
