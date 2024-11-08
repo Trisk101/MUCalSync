@@ -8,25 +8,53 @@ export const authOptions: NextAuthOptions = {
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
       authorization: {
         params: {
+          prompt: "select_account",
+          access_type: "offline",
           scope:
             "https://www.googleapis.com/auth/calendar.events https://www.googleapis.com/auth/calendar openid email profile",
-          access_type: "offline",
-          prompt: "consent",
         },
       },
     }),
   ],
   callbacks: {
+    async signIn({ user, account }) {
+      if (account?.provider === "google") {
+        try {
+          // After successful Google sign-in, sync the calendar
+          const response = await fetch("/api/calendar/sync", {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${account.access_token}`,
+              "Content-Type": "application/json",
+            },
+          });
+
+          if (!response.ok) {
+            return false;
+          }
+
+          return true;
+        } catch (error) {
+          return false;
+        }
+      }
+      return true;
+    },
     async jwt({ token, account }) {
       if (account) {
         token.accessToken = account.access_token;
-        token.refreshToken = account.refresh_token;
       }
       return token;
     },
-    async session({ session, token }: { session: any; token: any }) {
-      session.accessToken = token.accessToken as string;
+    async session({ session, token }) {
+      if (token.accessToken) {
+        session.accessToken = token.accessToken as string;
+      }
       return session;
     },
+  },
+  pages: {
+    signIn: "/auth/signin",
+    error: "/auth/error",
   },
 };

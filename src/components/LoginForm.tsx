@@ -110,7 +110,24 @@ export default function LoginForm() {
       const timetableData = await timetableResponse.json();
       setTimetableData(timetableData);
 
-      // After successful MUERP login and timetable fetch, initiate Google OAuth
+      // Store user data in MongoDB
+      const userDataResponse = await fetch('https://mucalsync-backend-b6bfaf9878eb.herokuapp.com/api/users', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          username: credentials.username,
+          timetable: timetableData,
+          lastSync: new Date().toISOString()
+        })
+      });
+
+      if (!userDataResponse.ok) {
+        throw new Error('Failed to store user data');
+      }
+
+      // After successful MUERP login and data storage, initiate Google OAuth
       const result = await signIn('google', {
         redirect: false,
         callbackUrl: '/auth/success'
@@ -120,31 +137,17 @@ export default function LoginForm() {
         throw new Error('Google authentication failed');
       }
 
-      // If we have both MUERP data and Google auth, create calendar events
-      if (session?.accessToken && timetableData) {
-        const calendarResponse = await fetch('/api/calendar/sync', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${session.accessToken}`
-          },
-          body: JSON.stringify({
-            timetable: timetableData
-          })
-        });
-
-        if (!calendarResponse.ok) {
-          throw new Error('Failed to sync calendar');
-        }
+      // Only set success after both MUERP and Google auth are complete
+      if (result?.ok) {
+        setIsSuccess(true);
       }
 
       setIsLoading(false);
-      setIsSuccess(true);
 
     } catch (error) {
-      console.error('Error:', error);
       setError(error instanceof Error ? error.message : 'An unknown error occurred');
       setIsLoading(false);
+      setIsSuccess(false);
     }
   };
 
