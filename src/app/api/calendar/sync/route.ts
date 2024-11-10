@@ -26,7 +26,7 @@ export async function POST(request: Request) {
         dateTime: new Date(Date.now() + 25 * 60 * 60 * 1000).toISOString(),
         timeZone: "Asia/Kolkata",
       },
-      recurrence: ["RRULE:FREQ=WEEKLY;COUNT=16"],
+      recurrence: ["RRULE:FREQ=WEEKLY;COUNT=1"],
     };
 
     console.log("Creating calendar event with token:", session.accessToken);
