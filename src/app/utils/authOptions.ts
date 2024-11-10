@@ -17,19 +17,25 @@ export const authOptions: NextAuthOptions = {
     }),
   ],
   callbacks: {
-    async jwt({ token, account }) {
-      if (account) {
-        token.accessToken = account.access_token;
+    async jwt({ token, account, user }) {
+      if (account && user) {
+        return {
+          ...token,
+          accessToken: account.access_token,
+          refreshToken: account.refresh_token,
+          accessTokenExpires: account.expires_at
+            ? account.expires_at * 1000
+            : 0,
+        };
       }
       return token;
     },
     async session({ session, token }) {
-      session.accessToken = token.accessToken as string;
+      if (token) {
+        session.accessToken = token.accessToken as string;
+      }
       return session;
     },
   },
-  pages: {
-    signIn: "/auth/signin",
-    error: "/auth/error",
-  },
+  debug: process.env.NODE_ENV === "development",
 };

@@ -5,8 +5,10 @@ import { authOptions } from "../../../utils/authOptions";
 export async function POST(request: Request) {
   try {
     const session = await getServerSession(authOptions);
+    console.log("Session in sync route:", session);
 
     if (!session?.accessToken) {
+      console.log("No access token found in session");
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -24,8 +26,10 @@ export async function POST(request: Request) {
     );
 
     const responseData = await backendResponse.json();
+    console.log("Backend response:", responseData);
 
     if (!backendResponse.ok) {
+      console.error("Backend error:", responseData);
       return NextResponse.json(
         { error: responseData.detail || "Failed to sync calendar" },
         { status: backendResponse.status }
@@ -36,7 +40,7 @@ export async function POST(request: Request) {
   } catch (error) {
     console.error("Calendar sync error:", error);
     return NextResponse.json(
-      { error: "Failed to sync calendar" },
+      { error: "Failed to sync calendar", details: error },
       { status: 500 }
     );
   }
