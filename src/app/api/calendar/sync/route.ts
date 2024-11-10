@@ -5,8 +5,10 @@ import { authOptions } from "../../../utils/authOptions";
 export async function POST(request: Request) {
   try {
     const session = await getServerSession(authOptions);
+    console.log("Session in calendar sync:", session);
 
     if (!session?.accessToken) {
+      console.error("No access token found in session");
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -15,17 +17,17 @@ export async function POST(request: Request) {
       location: "Room 301",
       description: "Faculty: John Doe\nSubject Code: CS201",
       start: {
-        dateTime: "2024-03-25T09:00:00",
+        dateTime: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
         timeZone: "Asia/Kolkata",
       },
       end: {
-        dateTime: "2024-03-25T10:00:00",
+        dateTime: new Date(Date.now() + 25 * 60 * 60 * 1000).toISOString(),
         timeZone: "Asia/Kolkata",
       },
       recurrence: ["RRULE:FREQ=WEEKLY;COUNT=16"],
     };
 
-    //const { timetable } = await request.json();
+    console.log("Creating calendar event with token:", session.accessToken);
 
     const response = await fetch(
       "https://www.googleapis.com/calendar/v3/calendars/primary/events",
@@ -85,14 +87,19 @@ export async function POST(request: Request) {
     if (!response.ok) {
       const errorData = await response.json();
       console.error("Google Calendar API error:", errorData);
-      throw new Error("Failed to create calendar event");
+      return NextResponse.json(
+        { error: "Failed to create calendar event", details: errorData },
+        { status: response.status }
+      );
     }
 
-    return NextResponse.json({ success: true });
+    const eventData = await response.json();
+    console.log("Calendar event created:", eventData);
+    return NextResponse.json({ success: true, event: eventData });
   } catch (error) {
     console.error("Calendar sync error:", error);
     return NextResponse.json(
-      { error: "Failed to sync calendar" },
+      { error: "Failed to sync calendar", details: error },
       { status: 500 }
     );
   }

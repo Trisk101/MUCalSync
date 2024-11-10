@@ -18,7 +18,7 @@ export async function GET(request: Request) {
         code,
         client_id: process.env.GOOGLE_CLIENT_ID!,
         client_secret: process.env.GOOGLE_CLIENT_SECRET!,
-        redirect_uri: "https://mucalsync.duckdns.org/api/auth/google/callback",
+        redirect_uri: "https://mucalsync.vercel.app/api/auth/google/callback",
         grant_type: "authorization_code",
       }),
     });
@@ -31,6 +31,6 @@ export async function GET(request: Request) {
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("Google OAuth error:", error);
-    return NextResponse.redirect("https://mucalsync.duckdns.org/auth/error");
+    return NextResponse.redirect("https://mucalsync.vercel.app/auth/error");
   }
 }

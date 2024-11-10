@@ -100,7 +100,6 @@ export default function LoginForm() {
         }),
       });
 
-
       if (!timetableResponse.ok) {
         const errorData = await timetableResponse.json();
         console.error("Timetable Error Response:", errorData);
@@ -110,44 +109,38 @@ export default function LoginForm() {
       const timetableData = await timetableResponse.json();
       setTimetableData(timetableData);
 
-      // Store user data in MongoDB
-      const userDataResponse = await fetch('https://mucalsync-backend-b6bfaf9878eb.herokuapp.com/api/users', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          username: credentials.username,
-          timetable: timetableData,
-          lastSync: new Date().toISOString()
-        })
-      });
-
-      if (!userDataResponse.ok) {
-        throw new Error('Failed to store user data');
-      }
-
       // After successful MUERP login and data storage, initiate Google OAuth
       const result = await signIn('google', {
-        callbackUrl: "/",
-        redirect: true,
+        redirect: false
       });
-      
+
       if (result?.error) {
-        throw new Error("Google authentication failed");
+        throw new Error('Google authentication failed');
       }
 
       // Only set success after both MUERP and Google auth are complete
       if (result?.ok) {
+        // Call calendar sync endpoint
+        const syncResponse = await fetch('/api/calendar/sync', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          }
+        });
+
+        if (!syncResponse.ok) {
+          throw new Error('Calendar sync failed');
+        }
+
         setIsSuccess(true);
       }
 
     } catch (error) {
-    console.error('Authentication error:', error);
-    setError('Authentication failed. Please try again.');
-  } finally {
+      console.error('Authentication error:', error);
+      setError('Authentication failed. Please try again.');
+    } finally {
       setIsLoading(false);
-    } 
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
