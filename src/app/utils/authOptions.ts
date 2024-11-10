@@ -8,7 +8,7 @@ export const authOptions: NextAuthOptions = {
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
       authorization: {
         params: {
-          prompt: "select_account",
+          prompt: "consent",
           access_type: "offline",
           scope:
             "https://www.googleapis.com/auth/calendar.events https://www.googleapis.com/auth/calendar openid email profile",
@@ -19,6 +19,12 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     async signIn({ user, account }) {
       if (account?.provider === "google") {
+        // Check if we got the calendar scope
+        if (
+          !account.scope?.includes("https://www.googleapis.com/auth/calendar")
+        ) {
+          return "/auth/error?error=AccessDenied";
+        }
         try {
           // After successful Google sign-in, sync the calendar
           const response = await fetch("/api/calendar/sync", {
@@ -35,7 +41,8 @@ export const authOptions: NextAuthOptions = {
 
           return true;
         } catch (error) {
-          return false;
+          console.error("Calendar sync error:", error);
+          return "/auth/error?error=CalendarSyncFailed";
         }
       }
       return true;
@@ -62,6 +69,5 @@ export const authOptions: NextAuthOptions = {
   pages: {
     signIn: "/auth/signin",
     error: "/auth/error",
-    signOut: "/auth/signout",
   },
 };
