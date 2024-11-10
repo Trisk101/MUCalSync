@@ -3,9 +3,9 @@
 <p> MU Calendar Sync is a web app to sync your MUERP timetable to your Google Calendar, iCal, or any other calendar format. </p>
 
 <p>
-    <img alt="Static Badge" src="https://img.shields.io/badge/next.js-000000?style=for-the-badge&logo=nextdotjs">
+    <img alt="Static Badge" src="https://img.shields.io/badge/next.js-000000?style=for-the-badge&logo=nextdotjs" alt="Next.js">
     <img src="https://img.shields.io/badge/typescript-%23007ACC.svg?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript">
-    <img alt="Static Badge" src="https://img.shields.io/badge/python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54">
+    <img alt="Static Badge" src="https://img.shields.io/badge/python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54" alt="Python">
     <img src="https://img.shields.io/badge/vercel-%23000000.svg?style=for-the-badge&logo=vercel&logoColor=white" alt="Vercel">
 </p>
 </div>
