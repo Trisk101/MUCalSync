@@ -10,9 +10,36 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { timetable } = await request.json();
+    const testEvent = {
+      summary: "Test Class: Data Structures",
+      location: "Room 301",
+      description: "Faculty: John Doe\nSubject Code: CS201",
+      start: {
+        dateTime: "2024-03-25T09:00:00",
+        timeZone: "Asia/Kolkata",
+      },
+      end: {
+        dateTime: "2024-03-25T10:00:00",
+        timeZone: "Asia/Kolkata",
+      },
+      recurrence: ["RRULE:FREQ=WEEKLY;COUNT=16"],
+    };
 
-    // Convert timetable data to Google Calendar events
+    //const { timetable } = await request.json();
+
+    const response = await fetch(
+      "https://www.googleapis.com/calendar/v3/calendars/primary/events",
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${session.accessToken}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(testEvent),
+      }
+    );
+
+    /*// Convert timetable data to Google Calendar events
     const events = timetable.schedule
       .map((day: any) =>
         day.slots.map((slot: any) => ({
@@ -45,6 +72,20 @@ export async function POST(request: Request) {
           body: JSON.stringify(event),
         }
       );
+    }
+
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error("Calendar sync error:", error);
+    return NextResponse.json(
+      { error: "Failed to sync calendar" },
+      { status: 500 }
+    );
+  }*/
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error("Google Calendar API error:", errorData);
+      throw new Error("Failed to create calendar event");
     }
 
     return NextResponse.json({ success: true });
