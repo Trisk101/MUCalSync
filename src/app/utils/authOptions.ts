@@ -17,36 +17,15 @@ export const authOptions: NextAuthOptions = {
     }),
   ],
   callbacks: {
-    async signIn({ user, account }) {
-      if (account?.provider === "google") {
-        if (
-          !account.scope?.includes("https://www.googleapis.com/auth/calendar")
-        ) {
-          return "/auth/error?error=AccessDenied";
-        }
-        // We don't need to sync here, just return true
-        return true;
-      }
-      return true;
-    },
     async jwt({ token, account }) {
-      // Persist the OAuth access_token to the token right after signin
       if (account) {
         token.accessToken = account.access_token;
       }
       return token;
     },
     async session({ session, token }) {
-      if (token.accessToken) {
-        session.accessToken = token.accessToken as string;
-      }
+      session.accessToken = token.accessToken as string;
       return session;
-    },
-    async redirect({ url, baseUrl }) {
-      if (url.startsWith("/")) return `${baseUrl}${url}`;
-      // Allows callback URLs on the same origin
-      else if (new URL(url).origin === baseUrl) return url;
-      return baseUrl;
     },
   },
   pages: {
