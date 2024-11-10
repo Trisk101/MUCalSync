@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { IconAlertTriangle } from '@tabler/icons-react';
@@ -8,24 +8,33 @@ import { IconAlertTriangle } from '@tabler/icons-react';
 export default function SuccessPage() {
   const { data: session } = useSession();
   const router = useRouter();
+  const [syncStatus, setSyncStatus] = useState('pending');
+
   useEffect(() => {
     const createCalendarEvent = async () => {
       try {
+        setSyncStatus('syncing');
         const syncResponse = await fetch('/api/calendar/sync', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-          }
+          },
+          body: JSON.stringify({})
         });
 
         if (!syncResponse.ok) {
-          throw new Error('Failed to sync calendar');
+          const errorData = await syncResponse.json();
+          console.error("Sync error:", errorData);
+          setSyncStatus('error');
+          return;
         }
 
         const data = await syncResponse.json();
         console.log('Calendar sync successful:', data);
+        setSyncStatus('success');
       } catch (error) {
         console.error('Calendar sync failed:', error);
+        setSyncStatus('error');
       }
     };
 
@@ -53,7 +62,7 @@ export default function SuccessPage() {
           rounded-[70%_30%_50%_50%] blur-3xl 
           animate-blob-2" 
         />
-      <main className="relative z-10 flex min-h-screen flex-col items-center justify-center p-8">
+        <main className="relative z-10 flex min-h-screen flex-col items-center justify-center p-8">
         <div className="max-w-2xl w-full space-y-8 backdrop-blur-lg bg-white/20 dark:bg-black/20 p-8 rounded-2xl border border-black/10 dark:border-white/10">
           {/* Maintenance Badge */}
           <div className="flex justify-center">
@@ -96,7 +105,7 @@ export default function SuccessPage() {
                 Your MUERP calendar has been synced with Google Calendar.
               </p>
               <p className="dark:text-gray-300 text-sm space-x-2 text-center">
-                <span>Having trouble syncing? </span>
+                <span>Having trouble syncing?</span>
                 <button
                   onClick={() => {
                     router.push('/');

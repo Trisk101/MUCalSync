@@ -1,18 +1,24 @@
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "../../../utils/authOptions";
+import { Session } from "next-auth";
 
 export async function POST(request: Request) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = (await getServerSession(authOptions)) as Session & {
+      user: {
+        accessToken?: string;
+      };
+    };
+
     console.log("Session in calendar sync:", session);
 
-    if (!session?.accessToken) {
+    if (!session?.user?.accessToken) {
       console.error("No access token found in session");
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { timetable } = await request.json();
+    //const { timetable } = await request.json();
 
     const testEvent = {
       summary: "Test Class: Data Structures",
@@ -29,14 +35,17 @@ export async function POST(request: Request) {
       recurrence: ["RRULE:FREQ=WEEKLY;COUNT=1"],
     };
 
-    console.log("Creating calendar event with token:", session.accessToken);
+    console.log(
+      "Creating calendar event with token:",
+      session.user.accessToken
+    );
 
     const response = await fetch(
       "https://www.googleapis.com/calendar/v3/calendars/primary/events",
       {
         method: "POST",
         headers: {
-          Authorization: `Bearer ${session.accessToken}`,
+          Authorization: `Bearer ${session.user.accessToken}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify(testEvent),
