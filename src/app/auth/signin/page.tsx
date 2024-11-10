@@ -1,7 +1,7 @@
 'use client';
 
 import { useSearchParams } from 'next/navigation';
-import LoginForm from '@/components/LoginForm';
+import LoginForm from '../../../components/LoginForm';
 
 export default function SignIn() {
   const searchParams = useSearchParams();
