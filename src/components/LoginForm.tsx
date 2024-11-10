@@ -111,15 +111,19 @@ export default function LoginForm() {
 
       // After successful MUERP login and data storage, initiate Google OAuth
       const result = await signIn('google', {
-        redirect: false
+        redirect: false,
+        callbackUrl: window.location.origin
       });
 
       if (result?.error) {
+        console.error("Google sign-in error:", result.error);
         throw new Error('Google authentication failed');
       }
 
-      // Only set success after both MUERP and Google auth are complete
       if (result?.ok) {
+        // Wait a moment for the session to be updated
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
         // Call calendar sync endpoint
         const syncResponse = await fetch('/api/calendar/sync', {
           method: 'POST',
@@ -129,9 +133,13 @@ export default function LoginForm() {
         });
 
         if (!syncResponse.ok) {
+          const errorData = await syncResponse.json();
+          console.error("Sync error:", errorData);
           throw new Error('Calendar sync failed');
         }
 
+        const syncData = await syncResponse.json();
+        console.log("Sync response:", syncData);
         setIsSuccess(true);
       }
 

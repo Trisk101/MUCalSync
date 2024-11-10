@@ -12,6 +12,8 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    const { timetable } = await request.json();
+
     const testEvent = {
       summary: "Test Class: Data Structures",
       location: "Room 301",

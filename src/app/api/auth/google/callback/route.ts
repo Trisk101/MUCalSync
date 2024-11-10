@@ -1,4 +1,6 @@
 import { NextResponse } from "next/server";
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "../../../../utils/authOptions";
 
 export async function GET(request: Request) {
   try {
@@ -25,9 +27,17 @@ export async function GET(request: Request) {
 
     const tokens = await tokenResponse.json();
 
-    // Store tokens securely (implement your storage method)
+    if (tokens.error) {
+      console.error("Token error:", tokens);
+      return NextResponse.redirect("https://mucalsync.vercel.app/auth/error");
+    }
 
-    // Return success response
+    // Get the session and store the access token
+    const session = await getServerSession(authOptions);
+    if (session) {
+      session.accessToken = tokens.access_token;
+    }
+
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("Google OAuth error:", error);
