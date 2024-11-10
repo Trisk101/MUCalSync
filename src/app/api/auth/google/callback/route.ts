@@ -27,8 +27,8 @@ export async function GET(request: Request) {
 
     // Store tokens securely (implement your storage method)
 
-    // Redirect to frontend with success
-    return NextResponse.redirect("https://mucalsync.duckdns.org/auth/success");
+    // Return success response
+    return NextResponse.json({ success: true });
   } catch (error) {
     console.error("Google OAuth error:", error);
     return NextResponse.redirect("https://mucalsync.duckdns.org/auth/error");

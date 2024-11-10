@@ -129,12 +129,12 @@ export default function LoginForm() {
 
       // After successful MUERP login and data storage, initiate Google OAuth
       const result = await signIn('google', {
-      callbackUrl: '/dashboard',
-        redirect: true
-      }); 
-
+        callbackUrl: "/",
+        redirect: true,
+      });
+      
       if (result?.error) {
-        throw new Error('Google authentication failed');
+        throw new Error("Google authentication failed");
       }
 
       // Only set success after both MUERP and Google auth are complete
