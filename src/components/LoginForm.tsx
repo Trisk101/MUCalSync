@@ -129,9 +129,9 @@ export default function LoginForm() {
 
       // After successful MUERP login and data storage, initiate Google OAuth
       const result = await signIn('google', {
-        redirect: false,
-        callbackUrl: '/auth/success'
-      });
+      callbackUrl: '/dashboard',
+        redirect: true
+      }); 
 
       if (result?.error) {
         throw new Error('Google authentication failed');
@@ -142,13 +142,12 @@ export default function LoginForm() {
         setIsSuccess(true);
       }
 
-      setIsLoading(false);
-
     } catch (error) {
-      setError(error instanceof Error ? error.message : 'An unknown error occurred');
+    console.error('Authentication error:', error);
+    setError('Authentication failed. Please try again.');
+  } finally {
       setIsLoading(false);
-      setIsSuccess(false);
-    }
+    } 
   };
 
   const handleSubmit = async (e: React.FormEvent) => {

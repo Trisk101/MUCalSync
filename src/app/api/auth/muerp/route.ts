@@ -1,10 +1,9 @@
 import { NextResponse } from "next/server";
-//import { cookies } from "next/headers";
 
 export async function POST(request: Request) {
   try {
     const { username, password } = await request.json();
-    const baseUrl = "https://mucalsync-backend-b6bfaf9878eb.herokuapp.com";
+    const baseUrl = process.env.BACKEND_URL;
 
     // Make a single call to our backend auth endpoint
     const loginResponse = await fetch(`${baseUrl}/api/auth/muerp`, {
@@ -16,6 +15,8 @@ export async function POST(request: Request) {
         username,
         password,
       }),
+      cache: "no-store",
+      credentials: "include",
     });
 
     const data = await loginResponse.json();
