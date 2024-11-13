@@ -290,6 +290,7 @@ export default function LoginForm() {
                 id="username"
                 type="text"
                 required
+                autoComplete="username"
                 className={`w-full px-4 py-4 bg-white/40 dark:bg-black/40 border border-gray-400 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 dark:text-white`}
                 placeholder="e.g., se00ucse000@mahindrauniversity.edu.in"
                 value={credentials.username}
@@ -318,10 +319,12 @@ export default function LoginForm() {
               id="password"
               type="password"
               required
+              autoComplete="current-password"
               className={`w-full px-4 py-4 bg-white/40 dark:bg-black/40 border border-gray-400 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 dark:text-white`}
               placeholder="Enter your MUERP password"
               value={credentials.password}
               onChange={(e) => setCredentials(prev => ({ ...prev, password: e.target.value }))}
+
             />
           </div>
         </div>
