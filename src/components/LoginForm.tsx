@@ -2,7 +2,6 @@
 import { useState } from 'react';
 import { IconBrandGoogleFilled } from '@tabler/icons-react';
 import { signIn, useSession } from "next-auth/react";
-import { encryptData } from "@/utils/encryption";
 
 interface TimetableData {
   // Define your timetable structure here
@@ -71,12 +70,6 @@ export default function LoginForm() {
     setIsLoading(true);
     
     try {
-      // Encrypt sensitive data before sending
-      const encryptedData = encryptData({
-        username: credentials.username,
-        password: credentials.password
-      }, process.env.NEXT_PUBLIC_ENCRYPTION_KEY!);
-
       // First authenticate with MUERP
       const loginResponse = await fetch('/api/auth/muerp', {
         method: 'POST',
@@ -84,7 +77,8 @@ export default function LoginForm() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          encryptedData
+          username: credentials.username,
+          password: credentials.password
         }),
       });
 
