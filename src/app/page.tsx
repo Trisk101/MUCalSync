@@ -1,7 +1,56 @@
+//import { useEffect} from 'react';
 import LoginForm from '../components/LoginForm';
-import { IconAlertTriangle } from "@tabler/icons-react";
+import { IconAlertTriangle } from '@tabler/icons-react';
+//import { gsap} from 'gsap';
+//import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
+/* Register ScrollTrigger
+gsap.registerPlugin(ScrollTrigger)
+
+*/
 export default function Home() {
+  /*useEffect(() => {
+    // Animate hero title and description on load
+    gsap.from(".hero-title", {
+      opacity: 0,
+      y: -20,
+      duration: 1.5,
+      ease: "power3.out",
+    });
+
+    gsap.from(".hero-description", {
+      opacity: 0,
+      y: 20,
+      delay: 0.5,
+      duration: 1.5,
+      ease: "power3.out",
+    });
+
+    // Scroll-triggered animations for sections
+    gsap.from(".fade-up", {
+      opacity:0,
+      y: 30,
+      duratin: 1,
+      stagger: 0.2,
+      ease: "power3.out",
+      scrollTrigger: {
+        trigger: ".fade-up",
+        start: "top 80%",
+        toggleActions: "play none none none",
+      },
+      
+    });
+
+    // For badge animation
+    gsap.from(".footer-badge", {
+      opacity: 0,
+      y: 20,
+      delay: 1,
+      duration: 1,
+      ease: "power3.out",
+    });
+  }, []); */
+
   return (
     <div className="relative min-h-screen">
       {/* Animated background blobs */}
@@ -74,7 +123,7 @@ export default function Home() {
         {/*Privacy Policy*/}
         <div className = "bg-white/10 dark:bg-black/10 backdrop-blur-lg border border-black/10 dark:border-white/10 px-3 py-1.5 rounded-full text-xs text-gray-600 dark:text-gray-400 flex items-center gap-1.5">
           <a 
-            href = "https://drive.google.com/file/d/18SDj1QHg1xgXVc1srsD7E1UJNT4HYNTf/view?usp=sharing"
+            href = "https://drive.google.com/file/d/1MCrN5cnivI21gfFpT3fzml6IAYiLo7bi/view?usp=sharing"
             target = "_blank"
             rel = "noopener noreferrer"
             className = "text-blue-500 hover:text-blue-600 dark:text-blue-400 dark:hover:text-blue-300 transition-colors">
